@@ -1,3 +1,4 @@
-import RenaultFrame from '../implementation/client'
+import FrameManager from '../implementation/client'
+import { getBrandedVariable } from '../implementation/brand'
 
-window.RenaultFrame = RenaultFrame
+window[getBrandedVariable()] = FrameManager

@@ -1,4 +1,5 @@
 import { MESSAGE_PREFIX } from './common'
+import { getBrandedVariable } from './brand'
 
 const queue = []
 let initialized = false, pingInterval
@@ -33,7 +34,7 @@ if (window !== parent) {
             parentState = JSON.parse(data.substring(5))
             initialized = true
             clearInterval(pingInterval)
-            console.log(`[RenaultFrame] Initialized`)
+            console.log(`[${ getBrandedVariable() }] Initialized`)
             queue.forEach(cb => cb())
         } else if (data.substring(0, 7) === 'scroll|') {
             const payload = JSON.parse(data.substring(7))
@@ -68,12 +69,12 @@ function calculateHeight(element = undefined) {
 }
 
 function resize(height = calculateHeight()) {
-    console.log(`[RenaultFrame] Resize to: ${ height }`)
+    console.log(`[${ getBrandedVariable() }] Resize to: ${ height }`)
     enqueue(() => sendMessage({ type: 'height', height }))
 }
 
 function logUnexpectedArgument(argument) {
-    console.error(`[RenaultFrame] Unexpected argument to scroll():`, argument)
+    console.error(`[${ getBrandedVariable() }] Unexpected argument to scroll():`, argument)
 }
 
 function scroll(...args) {
@@ -117,7 +118,7 @@ function scroll(...args) {
         position = Math.max(0, position + offset)
     }
 
-    console.log(`[RenaultFrame] Scroll to: ${ position === -1 ? 'top' : position }`)
+    console.log(`[${ getBrandedVariable() }] Scroll to: ${ position === -1 ? 'top' : position }`)
     enqueue(() => sendMessage({ type: 'scroll', position, offset, animate }))
 }
 

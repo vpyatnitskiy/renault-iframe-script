@@ -1,4 +1,5 @@
 const path = require('path')
+const webpack = require('webpack')
 
 const config = {
     entry: {
@@ -27,6 +28,11 @@ const config = {
             },
         ],
     },
+    plugins: [
+            new webpack.DefinePlugin({
+                'process.env.BRAND': JSON.stringify(process.env.BRAND || 'Renault'),
+            }),
+    ],
 }
 
 module.exports = config
