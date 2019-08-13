@@ -89,8 +89,10 @@ import { MESSAGE_PREFIX } from '../implementation/common'
     function scrollHandler() {
         for (let iframe of clients) {
             const offset = -iframe.getBoundingClientRect().top
+            const height = window.innerHeight
             iframe.contentWindow.postMessage('scroll|' + JSON.stringify({
                 offset,
+                height,
             }), '*')
         }
     }
