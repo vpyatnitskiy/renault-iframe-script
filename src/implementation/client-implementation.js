@@ -3,6 +3,9 @@ import { MESSAGE_PREFIX } from './common'
 const queue = []
 let initialized = false, pingInterval
 let parentState = {}
+let eventHandlers = {
+    scroll: new Set(),
+}
 
 function message(message, origin = '*') {
     window.parent.postMessage(message, origin)
@@ -32,6 +35,9 @@ if (window !== parent) {
             clearInterval(pingInterval)
             console.log(`[RenaultFrame] Initialized`)
             queue.forEach(cb => cb())
+        } else if (data.substring(0, 7) === 'scroll|') {
+            const payload = JSON.parse(data.substring(7))
+            eventHandlers.scroll.forEach(cb => cb(payload))
         }
     })
 
@@ -89,6 +95,8 @@ function scroll(...args) {
             } else {
                 position = element.getBoundingClientRect().top
             }
+        } else if ('string' === typeof args[0]) {
+            position = args.shift()
         } else if (args[0] === true) {
             animate = true
         } else {
@@ -96,7 +104,7 @@ function scroll(...args) {
             return
         }
     }
-    if (args.length > 0) {
+    if (args.length > 0) {
         if ('number' === typeof args[0]) {
             offset = args.shift()
         }
@@ -110,11 +118,25 @@ function scroll(...args) {
     }
 
     console.log(`[RenaultFrame] Scroll to: ${ position === -1 ? 'top' : position }`)
-    enqueue(() => sendMessage({ type: 'scroll', position, animate }))
+    enqueue(() => sendMessage({ type: 'scroll', position, offset, animate }))
 }
 
 function getParentInfo(cb) {
     enqueue(() => cb(parentState))
+}
+
+function on(event, cb) {
+    if (!(event in eventHandlers)) {
+        throw new Error(`Unknown event type ${ event }`)
+    }
+
+    eventHandlers[event].add(cb)
+}
+
+function off(event, cb) {
+    if (event in eventHandlers && eventHandlers[event].has(cb)) {
+        eventHandlers[event].delete(cb)
+    }
 }
 
 export {
@@ -122,4 +144,6 @@ export {
     scroll,
     sendQueuedMessage as message,
     getParentInfo,
+    on,
+    off,
 }

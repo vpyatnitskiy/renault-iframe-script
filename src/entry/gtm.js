@@ -7,6 +7,8 @@ import { MESSAGE_PREFIX } from '../implementation/common'
     }
     window[MESSAGE_PREFIX + '_init'] = true
 
+    const clients = new Set()
+
     const jsFrameDetectionInterval = setInterval(() => {
         const iframe = document.querySelector('iframe[src*=\'javascript:\']')
         if (iframe) {
@@ -26,15 +28,17 @@ import { MESSAGE_PREFIX } from '../implementation/common'
         iframe.style.height = height + 'px'
     }
 
-    function setScroll(iframe, position, animate) {
+    function setScroll(iframe, position, offset, animate) {
         const floatingMenu = $('.docked-nav-outer')
         const hasFloatingMenu = floatingMenu.get(0)
 
         let scrollTo
-        if (position === -1) {
+        if (typeof position === 'string') {
+            scrollTo = $(position).position().top + offset
+        } else if (position === -1) {
             scrollTo = 0
         } else {
-            scrollTo = $(iframe).position().top + position
+            scrollTo = $(iframe).position().top + offset
 
             const floatingMenuBreakpoint = $('header').outerHeight()
             if (hasFloatingMenu && scrollTo > floatingMenuBreakpoint) {
@@ -62,6 +66,11 @@ import { MESSAGE_PREFIX } from '../implementation/common'
 
         const json = JSON.parse(data.substring(MESSAGE_PREFIX.length))
         const iframe = findIframe(source)
+
+        if (!clients.has(iframe)) {
+            clients.add(iframe)
+        }
+
         switch (json.type) {
             case 'ping':
                 source.postMessage('pong|' + JSON.stringify({
@@ -72,12 +81,22 @@ import { MESSAGE_PREFIX } from '../implementation/common'
                 setHeight(iframe, json.height)
                 break
             case 'scroll':
-                setScroll(iframe, json.position, json.animate)
+                setScroll(iframe, json.position, json.offset, json.animate)
                 break
+        }
+    }
+
+    function scrollHandler() {
+        for (let iframe of clients) {
+            const offset = -iframe.getBoundingClientRect().top
+            iframe.contentWindow.postMessage('scroll|' + JSON.stringify({
+                offset,
+            }), '*')
         }
     }
 
     applyGlobalStyles()
     window.addEventListener('message', messageHandler)
+    window.addEventListener('scroll', scrollHandler)
 
 })()
