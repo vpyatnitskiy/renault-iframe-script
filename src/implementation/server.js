@@ -56,7 +56,6 @@ function appendParameters(url, parameters) {
 }
 
 function overwriteParameters(url, parameters, allowed = undefined) {
-    console.log(allowed)
     if (allowed) {
         const filteredParameters = {}
         for (let key in parameters) {
@@ -93,9 +92,7 @@ function replaceAutomagically(iframe, allowedParameters = undefined) {
 }
 
 function replaceAllAutomagically(allowedParameters = undefined) {
-    console.log('call', document.getElementsByTagName('iframe'))
     Array.prototype.forEach.call(document.getElementsByTagName('iframe'), iframe => {
-        console.log(iframe)
         if (iframe.hasAttribute('src') && iframe.getAttribute('src').indexOf(REPLACEABLE_IFRAME_PREFIX) > -1) {
             replaceAutomagically(iframe, allowedParameters)
         }

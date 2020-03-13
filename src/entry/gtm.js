@@ -26,8 +26,8 @@ import { MESSAGE_PREFIX } from '../implementation/common'
 
     function onFrameInitialized(frame) {
         if (process.env.BRAND === 'Nissan') {
-            applyFrameStyles(iframe)
-            $(window).on('resize orientationchange', () => applyFrameStyles(iframe))
+            applyFrameStyles(frame)
+            $(window).on('resize orientationchange', () => applyFrameStyles(frame))
         }
     }
 
@@ -35,6 +35,8 @@ import { MESSAGE_PREFIX } from '../implementation/common'
         if (process.env.BRAND === 'Nissan') {
             iframe.style.width = '1px'
             iframe.style.minWidth = window.innerWidth + 'px'
+            iframe.style.transition = 'none'
+            iframe.style.webkitTransition = 'none'
         }
     }
 
@@ -52,7 +54,7 @@ import { MESSAGE_PREFIX } from '../implementation/common'
         } else if (position === -1) {
             scrollTo = 0
         } else {
-            scrollTo = $(iframe).position().top + offset
+            scrollTo = position + $(iframe).position().top + offset
 
             const floatingMenuBreakpoint = $('header').outerHeight()
             if (hasFloatingMenu && scrollTo > floatingMenuBreakpoint) {
@@ -60,9 +62,13 @@ import { MESSAGE_PREFIX } from '../implementation/common'
             }
         }
 
-        $('html, body')[animate ? 'animate' : 'prop']({
+        const $els = $('html, body')
+        if (animate) {
+            $els.stop(true, false)
+        }
+        $els[animate ? 'animate' : 'prop']({
             scrollTop: Math.max(0, scrollTo),
-        })
+        }, 275)
     }
 
     function findIframe(sourceWindow) {
