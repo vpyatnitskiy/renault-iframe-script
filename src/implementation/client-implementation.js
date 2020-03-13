@@ -6,6 +6,8 @@ let initialized = false, pingInterval
 let parentState = {}
 let eventHandlers = {
     scroll: new Set(),
+    'geolocation-error': new Set(),
+    'geolocation-success': new Set(),
 }
 
 function message(message, origin = '*') {
@@ -36,9 +38,17 @@ if (window !== parent) {
             clearInterval(pingInterval)
             console.log(`[${ getBrandedVariable() }] Initialized`)
             queue.forEach(cb => cb())
-        } else if (data.substring(0, 7) === 'scroll|') {
-            const payload = JSON.parse(data.substring(7))
-            eventHandlers.scroll.forEach(cb => cb(payload))
+        } else {
+            for (let key in eventHandlers) {
+                if (eventHandlers.hasOwnProperty(key)) {
+                    if (data.substring(0, key.length + 1) === key + '|') {
+
+                        const payload = JSON.parse(data.substring(key.length + 1))
+                        eventHandlers[key].forEach(cb => cb(payload))
+                        return
+                    }
+                }
+            }
         }
     })
 
@@ -50,8 +60,8 @@ if (window !== parent) {
 function calculateHeight(element = undefined) {
     if (element === undefined) {
         return document.body
-                ? Math.max(...[].map.call(document.body.children, calculateHeight))
-                : 0
+            ? Math.max(...[].map.call(document.body.children, calculateHeight))
+            : 0
     }
     if (element.classList.contains('gm-style')) {
         return 0
@@ -65,12 +75,29 @@ function calculateHeight(element = undefined) {
     }
 
     return Math.ceil(Math.max(pageYOffset + bottom,
-            ...[].map.call(element.children, calculateHeight)))
+        ...[].map.call(element.children, calculateHeight)))
 }
 
 function resize(height = calculateHeight()) {
     console.log(`[${ getBrandedVariable() }] Resize to: ${ height }`)
     enqueue(() => sendMessage({ type: 'height', height }))
+}
+
+function geolocate(success, error) {
+    console.log(`[${ getBrandedVariable() }] Geolocation request`)
+
+    on('geolocation-success', function handler(pos) {
+        console.log(`[${ getBrandedVariable() }] Geolocation succeeded`, pos)
+        off('geolocation-success', handler)
+        success && success(pos)
+    })
+    on('geolocation-error', function handler(err) {
+        console.log(`[${ getBrandedVariable() }] Geolocation error`, err)
+        off('geolocation-error', handler)
+        error && error(err)
+    })
+
+    enqueue(() => sendMessage({ type: 'geolocate' }))
 }
 
 function logUnexpectedArgument(argument) {
@@ -145,6 +172,7 @@ export {
     scroll,
     sendQueuedMessage as message,
     getParentInfo,
+    geolocate,
     on,
     off,
 }

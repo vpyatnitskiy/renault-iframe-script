@@ -104,10 +104,38 @@ import { MESSAGE_PREFIX } from '../implementation/common'
             case 'scroll':
                 setScroll(iframe, json.position, json.offset, json.animate)
                 break
+            case 'geolocate':
+                try {
+                    navigator.geolocation.getCurrentPosition(pos => {
+                        const coords = pos.coords
+                        source.postMessage('geolocation-success|' + JSON.stringify({
+                            coords: {
+                                latitude: coords.latitude,
+                                longitude: coords.longitude,
+                                altitude: coords.altitude,
+                                accuracy: coords.accuracy,
+                                altitudeAccuracy: coords.altitudeAccuracy,
+                                heading: coords.heading,
+                                speed: coords.speed,
+                            },
+                            timestamp: pos.timestamp,
+                        }), '*')
+                    }, err => {
+                        source.postMessage('geolocation-error|' + JSON.stringify({
+                            code: err.code,
+                            message: err.message,
+                        }), '*')
+                    })
+                } catch (e) {
+                    source.postMessage('geolocation-error|' + JSON.stringify({
+                        code: 0,
+                        message: e.message,
+                    }), '*')
+                }
         }
     }
 
-    function scrollHandler() {
+    function scrollHandler() {
         for (let iframe of clients) {
             const offset = -iframe.getBoundingClientRect().top
             const height = window.innerHeight

@@ -96,6 +96,22 @@ RenaultFrame.on('scroll', function (event) {
 Чтобы отключить отслеживание скролла, вызовите `RenaultFrame.off()` с теми же
 параметрами.
 
+##### Геолокация
+
+На сайтах Helios по умолчанию запрещена геолокация внутри `<iframe>`, даже если
+фрейм загружен по безопасному протоколу (HTTPS).
+
+Для работы с геолокацией используйте `RenaultFrame.geolocate()` так же, как вы
+использовали бы `navigator.geolocation.getCurrentPosition()`:
+
+```
+RenaultFrame.geolocate(function (position) {
+    console.log(position.coords.latitude, position.coords.longitude)
+}, function (error) {
+    console.log(error.code, error.message)
+})
+```
+
 ##### Отправка сообщений в родительское окно
 
 - `RenaultFrame.message(msg)` и `RenaultFrame.message(msg, origin)` отправлят
