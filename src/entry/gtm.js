@@ -24,6 +24,20 @@ import { MESSAGE_PREFIX } from '../implementation/common'
         document.querySelector('head').appendChild(style)
     }
 
+    function onFrameInitialized(frame) {
+        if (process.env.BRAND === 'Nissan') {
+            applyFrameStyles(iframe)
+            $(window).on('resize orientationchange', () => applyFrameStyles(iframe))
+        }
+    }
+
+    function applyFrameStyles(iframe) {
+        if (process.env.BRAND === 'Nissan') {
+            iframe.style.width = '1px'
+            iframe.style.minWidth = window.innerWidth + 'px'
+        }
+    }
+
     function setHeight(iframe, height) {
         iframe.style.height = height + 'px'
     }
@@ -69,6 +83,7 @@ import { MESSAGE_PREFIX } from '../implementation/common'
 
         if (!clients.has(iframe)) {
             clients.add(iframe)
+            onFrameInitialized(iframe)
         }
 
         switch (json.type) {
