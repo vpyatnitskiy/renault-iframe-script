@@ -50,17 +50,17 @@ import { MESSAGE_PREFIX } from '../implementation/common'
         iframe.style.height = height + 'px'
     }
 
-    function setScroll(iframe, position, offset, animate) {
+    function setScroll(iframe, position, animate) {
         const floatingMenu = $('.docked-nav-outer')
         const hasFloatingMenu = floatingMenu.get(0)
 
         let scrollTo
         if (typeof position === 'string') {
-            scrollTo = $(position).position().top + offset
+            scrollTo = $(position).position().top
         } else if (position === -1) {
             scrollTo = 0
         } else {
-            scrollTo = position + $(iframe).position().top + offset
+            scrollTo = position + $(iframe).position().top
 
             const floatingMenuBreakpoint = $('header').outerHeight()
             if (hasFloatingMenu && scrollTo > floatingMenuBreakpoint) {
@@ -108,7 +108,7 @@ import { MESSAGE_PREFIX } from '../implementation/common'
                 setHeight(iframe, json.height)
                 break
             case 'scroll':
-                setScroll(iframe, json.position, json.offset, json.animate)
+                setScroll(iframe, json.position, json.animate)
                 break
             case 'geolocate':
                 try {

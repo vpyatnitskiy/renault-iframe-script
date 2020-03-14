@@ -146,7 +146,7 @@ function scroll(...args) {
     }
 
     console.log(`[${ getBrandedVariable() }] Scroll to: ${ position === -1 ? 'top' : position }`)
-    enqueue(() => sendMessage({ type: 'scroll', position, offset, animate }))
+    enqueue(() => sendMessage({ type: 'scroll', position, animate }))
 }
 
 function getParentInfo(cb) {
