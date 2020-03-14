@@ -33,8 +33,14 @@ import { MESSAGE_PREFIX } from '../implementation/common'
 
     function applyFrameStyles(iframe) {
         if (process.env.BRAND === 'Nissan') {
+            const dimensions = [window.innerWidth, document.documentElement.offsetWidth]
+            const header = document.querySelector('header')
+            if (header) {
+                dimensions.push(header.offsetWidth)
+            }
+
             iframe.style.width = '1px'
-            iframe.style.minWidth = window.innerWidth + 'px'
+            iframe.style.minWidth = Math.min(...dimensions) + 'px'
             iframe.style.transition = 'none'
             iframe.style.webkitTransition = 'none'
         }
